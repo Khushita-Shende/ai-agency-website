@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AtmicSend - AI Automation Agency</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: #0a0a0f;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00f2ff;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: 0.1s;
+            transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+        }
+
+        .cursor-follower {
+            width: 40px;
+            height: 40px;
+            background: rgba(0, 242, 255, 0.1);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: 0.3s;
+            transform: translate(-50%, -50%);
+            backdrop-filter: blur(2px);
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 1.5rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            background: rgba(10, 10, 15, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 242, 255, 0.2);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #00f2ff, #7000ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 3rem;
+        }
+
+        .nav-links a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            padding: 0.5rem 0;
+            transition: 0.3s;
+        }
+
+        .nav-links a::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #00f2ff, #7000ff);
+            transition: 0.3s;
+        }
+
+        .nav-links a:hover::before,
+        .nav-links a.active::before {
+            width: 100%;
+        }
+
+        .nav-links a:hover {
+            color: #00f2ff;
+        }
+
+        .menu-btn {
+            display: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* Main Container */
+        .pages-container {
+            position: relative;
+            width: 100%;
+        }
+
+        /* Page Styles */
+        .page {
+            min-height: 100vh;
+            padding: 8rem 3rem 3rem;
+            position: relative;
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        /* Hero Section */
+        .hero {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            min-height: 80vh;
+        }
+
+        .hero-content h1 {
+            font-size: 4.5rem;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #fff, #00f2ff, #7000ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.2rem;
+            color: #a0a0b0;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            padding: 1rem 2.5rem;
+            background: linear-gradient(45deg, #00f2ff, #7000ff);
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0, 242, 255, 0.3);
+        }
+
+        .btn-secondary {
+            padding: 1rem 2.5rem;
+            background: transparent;
+            border: 2px solid #00f2ff;
+            border-radius: 50px;
+            color: #fff;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 242, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        /* Industry Cards */
+        .industry-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            margin-top: 4rem;
+        }
+
+        .industry-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            transition: 0.3s;
+            cursor: pointer;
+        }
+
+        .industry-card:hover {
+            transform: translateY(-10px);
+            border-color: #00f2ff;
+            box-shadow: 0 20px 40px rgba(0, 242, 255, 0.2);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #00f2ff, #7000ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .industry-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .service-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .service-tag {
+            background: rgba(0, 242, 255, 0.1);
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(0, 242, 255, 0.3);
+        }
+
+        /* Services Page */
+        .industry-showcase {
+            display: none;
+            margin-top: 2rem;
+        }
+
+        .industry-showcase.active {
+            display: block;
+        }
+
+        .industry-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .industry-header h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .service-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 2rem;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .service-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 242, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+
+        .service-card:hover::before {
+            left: 100%;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+            border-color: #00f2ff;
+            box-shadow: 0 10px 30px rgba(0, 242, 255, 0.1);
+        }
+
+        .service-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            color: #00f2ff;
+        }
+
+        .service-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .service-card p {
+            color: #a0a0b0;
+            line-height: 1.6;
+        }
+
+        .service-features {
+            margin-top: 1.5rem;
+            list-style: none;
+        }
+
+        .service-features li {
+            margin: 0.5rem 0;
+            color: #c0c0d0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .service-features i {
+            color: #00f2ff;
+            font-size: 0.8rem;
+        }
+
+        /* Industry Selector */
+        .industry-selector {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 3rem 0;
+        }
+
+        .industry-tab {
+            padding: 1rem 2rem;
+            background: transparent;
+            border: 1px solid rgba(0, 242, 255, 0.3);
+            border-radius: 50px;
+            color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+            font-weight: 500;
+        }
+
+        .industry-tab:hover,
+        .industry-tab.active {
+            background: linear-gradient(45deg, #00f2ff, #7000ff);
+            border-color: transparent;
+            transform: translateY(-2px);
+        }
+
+        /* Agents Page */
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .agent-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(0, 242, 255, 0.2);
+            border-radius: 20px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agent-card::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 242, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: 0.5s;
+        }
+
+        .agent-card:hover::after {
+            opacity: 1;
+        }
+
+        .agent-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #00f2ff, #7000ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .agent-card h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .agent-type {
+            color: #00f2ff;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 1rem;
+        }
+
+        .agent-desc {
+            color: #a0a0b0;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+
+        .agent-stats {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .agent-stat {
+            flex: 1;
+            text-align: center;
+            padding: 0.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #00f2ff;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #808090;
+        }
+
+        /* 3D Canvas */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 4rem;
+            padding: 3rem;
+            background: rgba(10, 10, 15, 0.9);
+            backdrop-filter: blur(10px);
+            border-top: 1px solid rgba(0, 242, 255, 0.2);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-section h4 {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: #00f2ff;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section ul li {
+            margin: 0.8rem 0;
+        }
+
+        .footer-section ul li a {
+            color: #a0a0b0;
+            text-decoration: none;
+            transition: 0.3s;
+        }
+
+        .footer-section ul li a:hover {
+            color: #00f2ff;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 1rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .menu-btn {
+                display: block;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+
+            .industry-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .page {
+                padding: 6rem 1rem 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="logo">AtmicSend</div>
+        <div class="nav-links">
+            <a href="#home" class="active" data-page="home">Home</a>
+            <a href="#services" data-page="services">Services</a>
+            <a href="#agents" data-page="agents">AI Agents</a>
+            <a href="#about" data-page="about">About</a>
+            <a href="#contact" data-page="contact">Contact</a>
+        </div>
+        <div class="menu-btn">
+            <i class="fas fa-bars"></i>
+        </div>
+    </nav>
+
+    <!-- Pages Container -->
+    <div class="pages-container">
+        <!-- Home Page -->
+        <div id="home" class="page active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>
+                        <span class="gradient-text">AI Automation</span><br>
+                        That Actually Works
+                    </h1>
+                    <p class="hero-subtitle">
+                        Transform your business with intelligent AI agents. From medical clinics to e-commerce, 
+                        we automate what matters most.
+                    </p>
+                    <div class="cta-buttons">
+                        <button class="btn-primary" onclick="navigateTo('services')">Explore Solutions</button>
+                        <button class="btn-secondary" onclick="navigateTo('agents')">Meet Our Agents</button>
+                    </div>
+                </div>
+                <div class="hero-3d">
+                    <!-- 3D content will be rendered here -->
+                </div>
+            </div>
+
+            <!-- Industry Overview Cards -->
+            <div class="industry-grid">
+                <div class="industry-card" onclick="showIndustry('medical')">
+                    <div class="card-icon">
+                        <i class="fas fa-hospital"></i>
+                    </div>
+                    <h3>Medical Clinics</h3>
+                    <p>Complete patient care automation with AI voice & chatbots</p>
+                    <div class="service-tags">
+                        <span class="service-tag">Voice Receptionist</span>
+                        <span class="service-tag">Booking AI</span>
+                        <span class="service-tag">Patient Follow-ups</span>
+                    </div>
+                </div>
+
+                <div class="industry-card" onclick="showIndustry('marketing')">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Marketing Agencies</h3>
+                    <p>Scale campaigns with AI-powered SEO & content systems</p>
+                    <div class="service-tags">
+                        <span class="service-tag">SEO Automation</span>
+                        <span class="service-tag">Ad Optimization</span>
+                        <span class="service-tag">Analytics Agents</span>
+                    </div>
+                </div>
+
+                <div class="industry-card" onclick="showIndustry('ecommerce')">
+                    <div class="card-icon">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <h3>E-Commerce</h3>
+                    <p>Boost sales with AI chatbots & automated email flows</p>
+                    <div class="service-tags">
+                        <span class="service-tag">Cart Recovery</span>
+                        <span class="service-tag">Support Bot</span>
+                        <span class="service-tag">SEO Content</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Services Page -->
+        <div id="services" class="page">
+            <div class="industry-header">
+                <h2 class="gradient-text">Industry-Specific Solutions</h2>
+                <p>Choose your industry to explore tailored automation</p>
+            </div>
+
+            <div class="industry-selector">
+                <button class="industry-tab active" onclick="switchIndustryTab('medical')">Medical Clinics</button>
+                <button class="industry-tab" onclick="switchIndustryTab('marketing')">Marketing Agencies</button>
+                <button class="industry-tab" onclick="switchIndustryTab('ecommerce')">E-Commerce</button>
+            </div>
+
+            <!-- Medical Services -->
+            <div id="medical-services" class="industry-showcase active">
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-phone-volume"></i>
+                        </div>
+                        <h3>AI Voice Receptionist</h3>
+                        <p>24/7 intelligent phone answering that schedules appointments and handles patient inquiries</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Natural conversation AI</li>
+                            <li><i class="fas fa-check"></i> Multi-language support</li>
+                            <li><i class="fas fa-check"></i> EHR integration</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-comment-dots"></i>
+                        </div>
+                        <h3>AI Booking Chatbot</h3>
+                        <p>Website chatbot for instant appointment scheduling and patient registration</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> 24/7 availability</li>
+                            <li><i class="fas fa-check"></i> Insurance verification</li>
+                            <li><i class="fas fa-check"></i> Calendar sync</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h3>Calendar Management</h3>
+                        <p>Automated scheduling, rescheduling, and cancellation handling</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Smart scheduling</li>
+                            <li><i class="fas fa-check"></i> Waitlist management</li>
+                            <li><i class="fas fa-check"></i> Resource allocation</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-file-medical"></i>
+                        </div>
+                        <h3>Patient Digital Intake</h3>
+                        <p>Automated pre-visit forms and insurance verification</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Digital forms</li>
+                            <li><i class="fas fa-check"></i> Document collection</li>
+                            <li><i class="fas fa-check"></i> Insurance validation</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h3>Automated Appointment Reminders</h3>
+                        <p>Multi-channel reminders to reduce no-shows</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> SMS & Email</li>
+                            <li><i class="fas fa-check"></i> Voice calls</li>
+                            <li><i class="fas fa-check"></i> Two-way confirmations</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-heartbeat"></i>
+                        </div>
+                        <h3>Patient Follow-ups</h3>
+                        <p>Automated post-visit care instructions and feedback collection</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Care instructions</li>
+                            <li><i class="fas fa-check"></i> Satisfaction surveys</li>
+                            <li><i class="fas fa-check"></i> Medication reminders</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marketing Services -->
+            <div id="marketing-services" class="industry-showcase">
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-search"></i>
+                        </div>
+                        <h3>AI SEO System</h3>
+                        <p>Automated keyword research, content optimization, and rank tracking</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Keyword discovery</li>
+                            <li><i class="fas fa-check"></i> Competitor analysis</li>
+                            <li><i class="fas fa-check"></i> Rank monitoring</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-ad"></i>
+                        </div>
+                        <h3>AI Ads Optimization</h3>
+                        <p>Real-time ad performance optimization across all platforms</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Budget optimization</li>
+                            <li><i class="fas fa-check"></i> A/B testing</li>
+                            <li><i class="fas fa-check"></i> Audience targeting</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-pen-fancy"></i>
+                        </div>
+                        <h3>AI Content System</h3>
+                        <p>Automated content creation for blogs, social media, and ads</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Blog posts</li>
+                            <li><i class="fas fa-check"></i> Social media</li>
+                            <li><i class="fas fa-check"></i> Ad copy</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <h3>Data Analytics Agents</h3>
+                        <p>Automated reporting and actionable insights generation</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Custom dashboards</li>
+                            <li><i class="fas fa-check"></i> Predictive analytics</li>
+                            <li><i class="fas fa-check"></i> ROI tracking</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- E-Commerce Services -->
+            <div id="ecommerce-services" class="industry-showcase">
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h3>SEO Content Automation</h3>
+                        <p>Automated product descriptions and category page optimization</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Bulk content generation</li>
+                            <li><i class="fas fa-check"></i> Keyword optimization</li>
+                            <li><i class="fas fa-check"></i> Meta data automation</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3>AI Customer Support</h3>
+                        <p>24/7 intelligent chatbot for customer inquiries and support</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Order tracking</li>
+                            <li><i class="fas fa-check"></i> Returns handling</li>
+                            <li><i class="fas fa-check"></i> Product recommendations</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <h3>Cart Abandonment Email Flow</h3>
+                        <p>Automated email sequences to recover lost sales</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Personalized emails</li>
+                            <li><i class="fas fa-check"></i> Discount offers</li>
+                            <li><i class="fas fa-check"></i> Behavioral triggers</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-envelope-open-text"></i>
+                        </div>
+                        <h3>Personalized Email Follow-up</h3>
+                        <p>AI-driven email sequences based on customer behavior</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Behavioral targeting</li>
+                            <li><i class="fas fa-check"></i> Product recommendations</li>
+                            <li><i class="fas fa-check"></i> Timing optimization</li>
+                        </ul>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon">
+                            <i class="fas fa-tags"></i>
+                        </div>
+                        <h3>Product Listing Optimization</h3>
+                        <p>Automated optimization of product titles, descriptions, and images</p>
+                        <ul class="service-features">
+                            <li><i class="fas fa-check"></i> Title optimization</li>
+                            <li><i class="fas fa-check"></i> Image alt text</li>
+                            <li><i class="fas fa-check"></i> Price optimization</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Agents Page -->
+        <div id="agents" class="page">
+            <div class="industry-header">
+                <h2 class="gradient-text">Our AI Agents</h2>
+                <p>Meet the intelligent agents powering your automation</p>
+            </div>
+
+            <div class="agents-grid">
+                <div class="agent-card">
+                    <div class="agent-icon">
+                        <i class="fas fa-microphone-alt"></i>
+                    </div>
+                    <h3>VoxAI</h3>
+                    <div class="agent-type">Voice Agent</div>
+                    <p class="agent-desc">Natural voice conversations for appointment booking and patient intake</p>
+                    <div class="agent-stats">
+                        <div class="agent-stat">
+                            <div class="stat-value">98%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                        <div class="agent-stat">
+                            <div class="stat-value">24/7</div>
+                            <div class="stat-label">Availability</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="agent-card">
+                    <div class="agent-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>DataMind</h3>
+                    <div class="agent-type">Analytics Agent</div>
+                    <p class="agent-desc">Real-time data analysis and predictive insights for marketing campaigns</p>
+                    <div class="agent-stats">
+                        <div class="agent-stat">
+                            <div class="stat-value">10x</div>
+                            <div class="stat-label">Faster insights</div>
+                        </div>
+                        <div class="agent-stat">
+                            <div class="stat-value">99%</div>
+                            <div class="stat-label">Accuracy</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="agent-card">
+                    <div class="agent-icon">
+                        <i class="fas fa-comment"></i>
+                    </div>
+                    <h3>ChatGenius</h3>
+                    <div class="agent-type">Support Agent</div>
+                    <p class="agent-desc">Intelligent customer support for e-commerce and service businesses</p>
+                    <div class="agent-stats">
+                        <div class="agent-stat">
+                            <div class="stat-value">90%</div>
+                            <div class="stat-label">Resolution rate</div>
+                        </div>
+                        <div class="agent-stat">
+                            <div class="stat-value">5s</div>
+                            <div class="stat-label">Response time</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="agent-card">
+                    <div class="agent-icon">
+                        <i class="fas fa-magic"></i>
+                    </div>
+                    <h3>ContentCraft</h3>
+                    <div class="agent-type">Content Agent</div>
+                    <p class="agent-desc">Automated SEO content creation and optimization</p>
+                    <div class="agent-stats">
+                        <div class="agent-stat">
+                            <div class="stat-value">1000+</div>
+                            <div class="stat-label">Pages/hour</div>
+                        </div>
+                        <div class="agent-stat">
+                            <div class="stat-value">Top 10</div>
+                            <div class="stat-label">Rankings</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Page -->
+        <div id="about" class="page">
+            <div class="hero" style="grid-template-columns: 1fr;">
+                <div class="hero-content" style="text-align: center;">
+                    <h1>
+                        <span class="gradient-text">About AtmicSend</span>
+                    </h1>
+                    <p class="hero-subtitle" style="max-width: 800px; margin: 2rem auto;">
+                        We're on a mission to transform businesses through intelligent automation. 
+                        Our AI agents handle the repetitive tasks so you can focus on what matters most – growing your business.
+                    </p>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem;">
+                <div style="text-align: center;">
+                    <h2 style="font-size: 3rem; color: #00f2ff;">50+</h2>
+                    <p>Businesses Automated</p>
+                </div>
+                <div style="text-align: center;">
+                    <h2 style="font-size: 3rem; color: #00f2ff;">100k+</h2>
+                    <p>Hours Saved</p>
+                </div>
+                <div style="text-align: center;">
+                    <h2 style="font-size: 3rem; color: #00f2ff;">99%</h2>
+                    <p>Client Satisfaction</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Page -->
+        <div id="contact" class="page">
+            <div class="hero" style="grid-template-columns: 1fr 1fr;">
+                <div class="hero-content">
+                    <h1>
+                        <span class="gradient-text">Ready to Automate?</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Let's discuss how AI automation can transform your business.
+                    </p>
+                    <div style="margin-top: 2rem;">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin: 1rem 0;">
+                            <i class="fas fa-phone" style="color: #00f2ff;"></i>
+                            <span>+1 (555) 123-4567</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 1rem; margin: 1rem 0;">
+                            <i class="fas fa-envelope" style="color: #00f2ff;"></i>
+                            <span>hello@atomicsend.ai</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 2rem; border-radius: 20px;">
+                    <form onsubmit="event.preventDefault(); alert('Thanks! We\'ll contact you soon.');">
+                        <input type="text" placeholder="Your Name" style="width: 100%; padding: 1rem; margin: 0.5rem 0; background: rgba(0,0,0,0.3); border: 1px solid #00f2ff; border-radius: 10px; color: #fff;">
+                        <input type="email" placeholder="Your Email" style="width: 100%; padding: 1rem; margin: 0.5rem 0; background: rgba(0,0,0,0.3); border: 1px solid #00f2ff; border-radius: 10px; color: #fff;">
+                        <select style="width: 100%; padding: 1rem; margin: 0.5rem 0; background: rgba(0,0,0,0.3); border: 1px solid #00f2ff; border-radius: 10px; color: #fff;">
+                            <option>Medical Clinic</option>
+                            <option>Marketing Agency</option>
+                            <option>E-Commerce</option>
+                            <option>Other</option>
+                        </select>
+                        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">Schedule Consultation</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>AtmicSend</h4>
+                <p>AI Automation Agency<br>Transforming businesses through intelligent automation</p>
+            </div>
+            <div class="footer-section">
+                <h4>Solutions</h4>
+                <ul>
+                    <li><a href="#" onclick="showIndustry('medical')">Medical Clinics</a></li>
+                    <li><a href="#" onclick="showIndustry('marketing')">Marketing Agencies</a></li>
+                    <li><a href="#" onclick="showIndustry('ecommerce')">E-Commerce</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Company</h4>
+                <ul>
+                    <li><a href="#" onclick="navigateTo('about')">About</a></li>
+                    <li><a href="#" onclick="navigateTo('agents')">AI Agents</a></li>
+                    <li><a href="#" onclick="navigateTo('contact')">Contact</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Three.js Script -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'https://unpkg.com/three@0.128.0/examples/jsm/controls/OrbitControls.js';
+
+        // Setup Scene
+        const scene = new THREE.Scene();
+        scene.background = null;
+
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 2, 12);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        document.getElementById('canvas-container').appendChild(renderer.domElement);
+
+        // Controls with auto-rotate
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.autoRotate = true;
+        controls.autoRotateSpeed = 1;
+        controls.enableZoom = false;
+        controls.enablePan = false;
+        controls.maxPolarAngle = Math.PI / 2;
+
+        // Lights
+        const ambientLight = new THREE.AmbientLight(0x404060);
+        scene.add(ambientLight);
+
+        const pointLight1 = new THREE.PointLight(0x4466ff, 2, 20);
+        pointLight1.position.set(5, 5, 5);
+        scene.add(pointLight1);
+
+        const pointLight2 = new THREE.PointLight(0xff44aa, 1, 20);
+        pointLight2.position.set(-5, -2, 5);
+        scene.add(pointLight2);
+
+        // Create Central Atomic Structure
+        const nucleusGeo = new THREE.IcosahedronGeometry(1, 2);
+        const nucleusMat = new THREE.MeshStandardMaterial({ 
+            color: 0x3366ff,
+            emissive: 0x113366,
+            roughness: 0.3,
+            metalness: 0.7,
+            emissiveIntensity: 1.5
+        });
+        const nucleus = new THREE.Mesh(nucleusGeo, nucleusMat);
+        scene.add(nucleus);
+
+        // Orbital Rings
+        function createRing(radius, color, tilt) {
+            const points = [];
+            const segments = 64;
+            for (let i = 0; i <= segments; i++) {
+                const angle = (i / segments) * Math.PI * 2;
+                const x = Math.cos(angle) * radius;
+                const y = Math.sin(angle) * radius * 0.3;
+                const z = Math.sin(angle) * radius * 0.5;
+                points.push(new THREE.Vector3(x, y, z));
+            }
+            const geometry = new THREE.BufferGeometry().setFromPoints(points);
+            const material = new THREE.LineBasicMaterial({ color: color });
+            const ring = new THREE.LineLoop(geometry, material);
+            ring.rotation.x = tilt;
+            ring.rotation.z = tilt * 0.5;
+            return ring;
+        }
+
+        const ring1 = createRing(2.5, 0x44aaff, 0.5);
+        const ring2 = createRing(3.2, 0xff44aa, 1.2);
+        const ring3 = createRing(2.0, 0x88ff88, 0.8);
+        
+        scene.add(ring1);
+        scene.add(ring2);
+        scene.add(ring3);
+
+        // Floating Particles
+        const particles = [];
+        const particleCount = 30;
+        
+        for (let i = 0; i < particleCount; i++) {
+            const size = 0.1 + Math.random() * 0.1;
+            const geometry = new THREE.SphereGeometry(size, 8);
+            const material = new THREE.MeshStandardMaterial({
+                color: new THREE.Color().setHSL(Math.random(), 0.8, 0.6),
+                emissive: new THREE.Color().setHSL(Math.random(), 0.5, 0.2)
+            });
+            const particle = new THREE.Mesh(geometry, material);
+            
+            const radius = 2 + Math.random() * 2;
+            const angle = Math.random() * Math.PI * 2;
+            const height = (Math.random() - 0.5) * 3;
+            
+            particle.position.x = Math.cos(angle) * radius;
+            particle.position.z = Math.sin(angle) * radius;
+            particle.position.y = height;
+            
+            particle.userData = {
+                radius: radius,
+                angle: angle,
+                speed: 0.001 + Math.random() * 0.002,
+                height: height,
+                yOffset: Math.random() * Math.PI * 2
+            };
+            
+            scene.add(particle);
+            particles.push(particle);
+        }
+
+        // Background Stars
+        const starsGeometry = new THREE.BufferGeometry();
+        const starsCount = 1000;
+        const starPositions = new Float32Array(starsCount * 3);
+        
+        for (let i = 0; i < starsCount * 3; i += 3) {
+            const r = 20 + Math.random() * 30;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos(2 * Math.random() - 1);
+            
+            starPositions[i] = Math.sin(phi) * Math.cos(theta) * r;
+            starPositions[i+1] = Math.sin(phi) * Math.sin(theta) * r * 0.5;
+            starPositions[i+2] = Math.cos(phi) * r;
+        }
+        
+        starsGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+        const starsMaterial = new THREE.PointsMaterial({ color: 0xaaccff, size: 0.1 });
+        const stars = new THREE.Points(starsGeometry, starsMaterial);
+        scene.add(stars);
+
+        // Animation
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate nucleus
+            nucleus.rotation.x += 0.002;
+            nucleus.rotation.y += 0.003;
+
+            // Rotate rings
+            ring1.rotation.y += 0.001;
+            ring2.rotation.x += 0.001;
+            ring3.rotation.z += 0.001;
+
+            // Animate particles
+            particles.forEach(particle => {
+                particle.userData.angle += particle.userData.speed;
+                particle.position.x = Math.cos(particle.userData.angle) * particle.userData.radius;
+                particle.position.z = Math.sin(particle.userData.angle) * particle.userData.radius;
+                particle.position.y = particle.userData.height + Math.sin(Date.now() * 0.001 + particle.userData.yOffset) * 0.5;
+            });
+
+            // Rotate stars
+            stars.rotation.y += 0.0001;
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
+
+    <script>
+        // Page Navigation
+        function navigateTo(pageId) {
+            // Update active page
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+
+            // Update nav links
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('data-page') === pageId) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // Show Industry Services
+        function showIndustry(industry) {
+            navigateTo('services');
+            switchIndustryTab(industry);
+        }
+
+        function switchIndustryTab(industry) {
+            // Update tabs
+            document.querySelectorAll('.industry-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.target.classList.add('active');
+
+            // Show corresponding services
+            document.querySelectorAll('.industry-showcase').forEach(showcase => {
+                showcase.classList.remove('active');
+            });
+            document.getElementById(`${industry}-services`).classList.add('active');
+        }
+
+        // Custom Cursor
+        const cursor = document.querySelector('.cursor');
+        const follower = document.querySelector('.cursor-follower');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+            
+            setTimeout(() => {
+                follower.style.left = e.clientX + 'px';
+                follower.style.top = e.clientY + 'px';
+            }, 50);
+        });
+
+        // Mobile Menu Toggle
+        document.querySelector('.menu-btn').addEventListener('click', () => {
+            const navLinks = document.querySelector('.nav-links');
+            navLinks.style.display = navLinks.style.display === 'flex' ? 'none' : 'flex';
+        });
+
+        // Initialize
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                navigateTo(link.getAttribute('data-page'));
+            });
+        });
+    </script>
+</body>
+</html>
